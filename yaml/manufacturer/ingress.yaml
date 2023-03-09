@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: manufacturer
+spec:
+  rules:
+  - host: manufacturer.fido.gracey.dev
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: manufacturer
+            port:
+              number: 8080

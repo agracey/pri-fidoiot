@@ -1,0 +1,57 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: owner
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: owner
+  template:
+    metadata:
+      annotations:
+        linkerd.io/inject: enabled
+      labels:
+        app: owner
+    spec:
+      containers:
+      - name: owner
+        image: atgracey/fido-sample:latest
+        imagePullPolicy: Always
+        env:
+        - name: DB_USER
+          value: myuser
+        - name: DB_PASSWORD
+          value: password
+        - name: API_USER
+          value: C=US, ST=OR, L=Hillsboro, O=LF Edge, OU=FDO project, CN=apiUser
+        - name: DB_DATABASE
+          value: emdb
+        - name: HTTP_PORT
+          value: "8080"
+        ports:
+        - containerPort: 8080
+          name: http
+        volumeMounts:
+        - mountPath: /app/hibernate.cfg.xml
+          name: config
+          subPath: hibernate.cfg.xml
+        - mountPath: /app/service.yml
+          name: config
+          subPath: service.yml
+        - mountPath: /app/WEB-INF/web.xml
+          name: config
+          subPath: web.xml
+      volumes:
+      - name: config
+        configMap:
+          name: owner-config
+          defaultMode: 0666
+          items:
+          - key: hibernate.cfg.xml
+            path: hibernate.cfg.xml
+          - key: service.yml
+            path: service.yml
+          - key: web.xml
+            path: web.xml

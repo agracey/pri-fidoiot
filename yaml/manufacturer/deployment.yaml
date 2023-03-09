@@ -1,0 +1,62 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: manufacturer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: manufacturer
+  template:
+    metadata:
+      annotations:
+        linkerd.io/inject: enabled
+      labels:
+        app: manufacturer
+    spec:
+      containers:
+      - name: manufacturer
+        image: atgracey/fido-sample:latest
+        imagePullPolicy: Always
+        env:
+        - name: DB_USER
+          value: myuser
+        - name: DB_PASSWORD
+          value: password
+        - name: DB_HOST
+          value: jdbc:mariadb://mariadb:3306/manufacturer?useSSL=false
+        - name: DB_DATABASE
+          value: manufacturer
+        - name: API_USER
+          value: C=US, ST=OR, L=Hillsboro, O=LF Edge, OU=FDO project, CN=apiUser
+        - name: RV_HOSTNAME
+          value: rv.fido.gracey.dev
+        - name: RV_IP
+          value: 192.168.1.25
+        - name: HTTP_PORT
+          value: "8080"
+        ports:
+        - containerPort: 8080
+          name: http
+        volumeMounts:
+        - mountPath: /app/hibernate.cfg.xml
+          name: config
+          subPath: hibernate.cfg.xml
+        - mountPath: /app/service.yml
+          name: config
+          subPath: service.yml
+        - mountPath: /app/WEB-INF/web.xml
+          name: config
+          subPath: web.xml
+      volumes:
+      - name: config
+        configMap:
+          name: manufacturer-config
+          items:
+          - key: hibernate.cfg.xml
+            path: hibernate.cfg.xml
+          - key: service.yml
+            path: service.yml
+          - key: web.xml
+            path: web.xml

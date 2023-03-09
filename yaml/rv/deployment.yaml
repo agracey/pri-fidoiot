@@ -1,0 +1,63 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rv
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rv
+  template:
+    metadata:
+      annotations:
+        linkerd.io/inject: enabled
+      labels:
+        app: rv
+    spec:
+      containers:
+      - name: rv
+        image: atgracey/fido-sample:latest
+        imagePullPolicy: Always
+        env:
+        - name: DB_USER
+          value: myuser
+        - name: DB_PASSWORD
+          value: password
+        - name: DB_HOST
+          value: rootpw
+        - name: DB_DATABASE
+          value: emdb
+        - name: HTTP_PORT
+          value: "8080"
+        - name: API_USER
+          value: C=US, ST=OR, L=Hillsboro, O=LF Edge, OU=FDO project, CN=apiUser
+        - name: RV_HOSTNAME
+          value: rv.fido.gracey.dev
+        - name: RV_IP
+          value: 192.168.1.25
+        ports:
+        - containerPort: 8080
+          name: http
+        volumeMounts:
+        - mountPath: /app/hibernate.cfg.xml
+          name: config
+          subPath: hibernate.cfg.xml
+        - mountPath: /app/service.yml
+          name: config
+          subPath: service.yml
+        - mountPath: /app/WEB-INF/web.xml
+          name: config
+          subPath: web.xml
+      volumes:
+      - name: config
+        configMap:
+          name: rv-config
+          defaultMode: 0666
+          items:
+          - key: hibernate.cfg.xml
+            path: hibernate.cfg.xml
+          - key: service.yml
+            path: service.yml
+          - key: web.xml
+            path: web.xml

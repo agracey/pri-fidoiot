@@ -1,0 +1,204 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rv-config
+data:
+  hibernate.cfg.xml: |
+    <?xml version="1.0" encoding="utf-8"?>
+    <!DOCTYPE hibernate-configuration PUBLIC
+    "-//Hibernate/Hibernate Configuration DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-configuration.dtd">
+    <hibernate-configuration>
+        <session-factory>
+            <property name = "hibernate.connection.driver_class">org.mariadb.jdbc.Driver</property>
+            <property name="hibernate.show_sql">true</property>
+            <property name="current_session_context_class">thread</property>
+            <property name="hbm2ddl.auto">update</property>
+
+            <mapping class="org.fidoalliance.fdo.protocol.entity.CertificateValidity"></mapping>
+            <mapping class="org.fidoalliance.fdo.protocol.entity.CertificateData"></mapping>
+            <mapping class="org.fidoalliance.fdo.protocol.entity.OnboardingVoucher"></mapping>
+            <mapping class="org.fidoalliance.fdo.protocol.entity.OnboardingConfig"></mapping>
+            <mapping class="org.fidoalliance.fdo.protocol.entity.OnDieCertificateData"></mapping>
+            <mapping class="org.fidoalliance.fdo.protocol.entity.ProtocolSession"></mapping>
+            <mapping class="org.fidoalliance.fdo.protocol.entity.ConformanceData"></mapping>
+            <mapping class="org.fidoalliance.fdo.protocol.entity.SystemResource"></mapping>
+            <mapping class="org.fidoalliance.fdo.protocol.entity.SystemPackage"></mapping>
+        </session-factory>
+    </hibernate-configuration>
+  service.yml: |
+    hibernate-properties:
+      hibernate.connection.username: $(DB_USER)
+      hibernate.connection.password: $(DB_PASSWORD)
+      hibernate.connection.url: jdbc:mariadb://mariadb:3306/rv?useSSL=false
+      hibernate.connection.requireSSL: false
+      hibernate.connection.autoReconnect: true
+      hibernate.dialect: org.hibernate.dialect.MariaDBDialect
+
+    system-properties:
+      log4j.configurationFile: log4j2.xml
+      app-data.dir: ./app-data
+      application.version: 1.1.5-SNAPSHOT
+      server.api.user: $(API_USER)
+      server.api.password: "null"
+      service.name: "Rendezvous"
+
+
+    http-server:
+      base_path: .
+      http_port: 8080
+      http_schemes:
+      - http
+      http_timeout: 20000
+
+    manufacturer:
+      keystore: 
+        path: manufacturer.p12
+        store-type: PKCS12
+        password: encrypt_password.txt
+
+    epid:
+      # WARNING: do not set testmode to true in production environments
+      # if testmode is true, EPID signature verification will only
+      # fail for non-signature issues (i.e. malformed requests)
+      testMode: false
+      # TBD: the url below is the used for production purposes
+      # url: http://verify.epid-sbx.trustedservices.intel.com
+      # the url below is used for testing purposes only
+      url: http://verify.epid-sbx.trustedservices.intel.com
+
+    #cbor Web Token (cwt) used for to0 and to1 sessions
+    cwt:
+      keystore: 
+        path: ctw.p12
+        store-type: PKCS12
+        password: encrypt_password.txt
+
+    workers:
+      - org.fidoalliance.fdo.protocol.StandardLogProvider
+      - org.fidoalliance.fdo.protocol.StandardExceptionConsumer
+      - org.fidoalliance.fdo.protocol.StandardMessageDispatcher
+      - org.fidoalliance.fdo.protocol.StandardCryptoService
+      - org.fidoalliance.fdo.protocol.StandardHttpServer
+      - org.fidoalliance.fdo.protocol.StandardDatabaseServer
+      - org.fidoalliance.fdo.protocol.StandardCwtKeySupplier
+      - org.fidoalliance.fdo.protocol.db.StandardKeyStoreInputStream
+      - org.fidoalliance.fdo.protocol.db.StandardKeyStoreOutputStream
+      #- org.fidoalliance.fdo.protocol.FileKeyStoreInputStream
+      #- org.fidoalliance.fdo.protocol.FileKeyStoreOutputStream
+      - org.fidoalliance.fdo.protocol.db.StandardValidityDaysSupplier
+      - org.fidoalliance.fdo.protocol.db.StandardRvBlobQueryFunction
+      - org.fidoalliance.fdo.protocol.db.StandardRvBlobStorageFunction
+      - org.fidoalliance.fdo.protocol.db.TrustedRendezvousAcceptFunction
+      #- org.fidoalliance.fdo.protocol.UntrustedRendezvousAcceptFunction
+  web.xml: |
+    <?xml version="1.0" encoding="ISO-8859-1"?>
+      <web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+         version="2.5">
+         <servlet>
+            <servlet-name>FdoProtocol</servlet-name>
+            <servlet-class>org.fidoalliance.fdo.protocol.ProtocolServlet</servlet-class>
+         </servlet>
+         <servlet-mapping> 
+            <servlet-name>FdoProtocol</servlet-name>
+            <url-pattern>/fdo/101/msg/20</url-pattern>
+            <url-pattern>/fdo/101/msg/22</url-pattern>
+            <url-pattern>/fdo/101/msg/30</url-pattern>
+            <url-pattern>/fdo/101/msg/32</url-pattern>
+            <url-pattern>/fdo/101/msg/255</url-pattern>
+         </servlet-mapping>
+         <servlet>
+            <servlet-name>AllowList</servlet-name>
+            <servlet-class>org.fidoalliance.fdo.protocol.api.RestApiServlet</servlet-class>
+            <init-param>
+            <param-name>Api-Class</param-name>
+            <param-value>org.fidoalliance.fdo.protocol.api.AllowList</param-value>
+            </init-param>
+         </servlet>
+         <servlet-mapping> 
+            <servlet-name>AllowList</servlet-name>
+            <url-pattern>/api/v1/rv/allow</url-pattern>
+         </servlet-mapping>
+         <servlet>
+            <servlet-name>DenyList</servlet-name>
+            <servlet-class>org.fidoalliance.fdo.protocol.api.RestApiServlet</servlet-class>
+            <init-param>
+            <param-name>Api-Class</param-name>
+            <param-value>org.fidoalliance.fdo.protocol.api.DenyList</param-value>
+            </init-param>
+         </servlet>
+         <servlet-mapping> 
+            <servlet-name>DenyList</servlet-name>
+            <url-pattern>/api/v1/rv/deny</url-pattern>
+         </servlet-mapping>
+         <servlet>
+            <servlet-name>CertificateValidity</servlet-name>
+            <servlet-class>org.fidoalliance.fdo.protocol.api.RestApiServlet</servlet-class>
+            <init-param>
+               <param-name>Api-Class</param-name>
+               <param-value>org.fidoalliance.fdo.protocol.api.CertificateValidityApi</param-value>
+            </init-param>
+         </servlet>
+         <servlet-mapping>
+            <servlet-name>CertificateValidity</servlet-name>
+            <url-pattern>/api/v1/certificate/validity/*</url-pattern>
+         </servlet-mapping>
+         <servlet>
+            <servlet-name>CertificateApi</servlet-name>
+            <servlet-class>org.fidoalliance.fdo.protocol.api.RestApiServlet</servlet-class>
+            <init-param>
+               <param-name>Api-Class</param-name>
+               <param-value>org.fidoalliance.fdo.protocol.api.CertificateApi</param-value>
+            </init-param>
+         </servlet>
+         <servlet-mapping>
+            <servlet-name>CertificateApi</servlet-name>
+            <url-pattern>/api/v1/certificate/*</url-pattern>
+         </servlet-mapping>
+         <servlet>
+            <servlet-name>Health</servlet-name>
+            <servlet-class>org.fidoalliance.fdo.protocol.api.RestApiServlet</servlet-class>
+            <init-param>
+               <param-name>Api-Class</param-name>
+               <param-value>org.fidoalliance.fdo.protocol.api.HealthApi</param-value>
+            </init-param>
+         </servlet>
+         <servlet-mapping>
+            <servlet-name>Health</servlet-name>
+            <url-pattern>/health</url-pattern>
+         </servlet-mapping>
+         <servlet>
+            <servlet-name>Logs</servlet-name>
+            <servlet-class>org.fidoalliance.fdo.protocol.api.RestApiServlet</servlet-class>
+            <init-param>
+            <param-name>Api-Class</param-name>
+            <param-value>org.fidoalliance.fdo.protocol.api.Logs</param-value>
+            </init-param>
+         </servlet>
+         <servlet-mapping> 
+            <servlet-name>Logs</servlet-name>
+            <url-pattern>/api/v1/logs</url-pattern>
+         </servlet-mapping>
+      <security-constraint>
+         <web-resource-collection>
+            <web-resource-name>apis</web-resource-name>
+            <url-pattern>/api/v1/*</url-pattern>
+         </web-resource-collection>
+         <auth-constraint>
+            <role-name>api</role-name>
+         </auth-constraint>
+         <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+         </user-data-constraint>
+      </security-constraint>
+
+      <login-config>
+            <auth-method>CLIENT-CERT</auth-method>
+      </login-config>
+
+      <security-role>
+         <role-name>api</role-name>
+      </security-role>
+      </web-app>
