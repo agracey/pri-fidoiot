@@ -39,13 +39,16 @@ public class StandardTo0Client extends HttpClient {
 
   @Override
   protected void finishedOk() {
+    logger.info("TO0 finishedOk 1");
     To0AcceptOwner acceptOwner = getResponse().getExtra().get(To0AcceptOwner.class);
     if (acceptOwner != null) {
       try {
+        logger.info("TO0 finishedOk 2");
         OwnershipVoucherHeader header = Mapper.INSTANCE.readValue(to0d.getVoucher().getHeader(),
             OwnershipVoucherHeader.class);
         Config.getWorker(AcceptOwnerFunction.class).apply(header.getGuid().toString(),
             acceptOwner.getWaitSeconds());
+        logger.info("TO0 finishedOk 3");
       } catch (IOException e) {
         logger.error("Failed to update voucher wait seconds " + e.getMessage());
       }
@@ -70,6 +73,7 @@ public class StandardTo0Client extends HttpClient {
 
   @Override
   protected void generateHello() throws IOException {
+    logger.info("TO0 generateHello 1");
 
     byte[] headerTag = getTo0d().getVoucher().getHeader();
     OwnershipVoucherHeader header =
@@ -85,6 +89,7 @@ public class StandardTo0Client extends HttpClient {
     storage.put(To0d.class, getTo0d());
     storage.put(To2AddressEntries.class, getAddressEntries());
     getRequest().setExtra(storage);
+    logger.info("TO0 generateHello 2");
 
   }
 }

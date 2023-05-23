@@ -3,6 +3,10 @@ kind: Ingress
 metadata:
   name: reseller
 spec:
+  tls:
+  - hosts:
+    - reseller.fido.gracey.dev
+    secretName: reseller-tls
   rules:
   - host: reseller.fido.gracey.dev
     http:
@@ -14,3 +18,15 @@ spec:
             name: reseller
             port:
               number: 8080
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: reseller-tls
+spec:
+  secretName: reseller-tls
+  dnsNames:
+    - reseller.fido.gracey.dev
+  issuerRef:
+    name: letsencrypt-gracey-dev
+    kind: ClusterIssuer

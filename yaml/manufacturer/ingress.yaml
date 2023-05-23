@@ -3,6 +3,10 @@ kind: Ingress
 metadata:
   name: manufacturer
 spec:
+  tls:
+  - hosts:
+    - manufacturer.fido.gracey.dev
+    secretName: manufacturer-tls
   rules:
   - host: manufacturer.fido.gracey.dev
     http:
@@ -14,3 +18,15 @@ spec:
             name: manufacturer
             port:
               number: 8080
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: manufacturer-tls
+spec:
+  secretName: manufacturer-tls
+  dnsNames:
+    - manufacturer.fido.gracey.dev
+  issuerRef:
+    name: letsencrypt-gracey-dev
+    kind: ClusterIssuer

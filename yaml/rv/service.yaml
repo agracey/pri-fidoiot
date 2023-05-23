@@ -3,10 +3,10 @@ kind: Service
 metadata:
   name: rv
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   ports:
   - name: http
-    port: 8084
+    port: 8080
     protocol: TCP
     targetPort: 8080
   selector:

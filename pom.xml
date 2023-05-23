@@ -65,8 +65,8 @@
     <maven-project-info-reports-plugin.version>3.1.1</maven-project-info-reports-plugin.version>
     <maven-resources-plugin.version>3.2.0</maven-resources-plugin.version>
     <maven-site-plugin.version>3.9.1</maven-site-plugin.version>
-    <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
-    <maven-surefire-report-plugin.version>3.0.0-M5</maven-surefire-report-plugin.version>
+    <!-- <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
+    <maven-surefire-report-plugin.version>3.0.0-M5</maven-surefire-report-plugin.version> -->
     <maven-war-plugin.version>3.3.1</maven-war-plugin.version>
     <pgpverify-plugin.version>1.14.0</pgpverify-plugin.version>
 
@@ -74,8 +74,6 @@
     <!-- Project Configurations -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project-demo-directory>../../component-samples/demo</project-demo-directory>
-
-
   </properties>
 
   <modules>
@@ -137,11 +135,11 @@
           <version>${maven-site-plugin.version}</version>
         </plugin>
 
-        <plugin>
+        <!-- <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>${maven-surefire-plugin.version}</version>
-        </plugin>
+        </plugin> -->
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -199,10 +197,10 @@
         <artifactId>maven-site-plugin</artifactId>
       </plugin>
 
-      <plugin>
+      <!-- <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-      </plugin>
+      </plugin> -->
 
       <plugin>
         <groupId>org.simplify4u.plugins</groupId>

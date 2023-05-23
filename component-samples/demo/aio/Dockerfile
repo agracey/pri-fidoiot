@@ -13,11 +13,11 @@ RUN mkdir -p /home/fdo/lib /home/fdo/WEB-INF /home/fdo/app-data
 
 # Setup service dependencies
 COPY ./lib ./lib/
-COPY ./WEB-INF ./WEB-INF
-COPY log4j2.xml .
+#COPY ./WEB-INF ./WEB-INF
+COPY log4j2.xml . 
 COPY aio.jar .
-COPY hibernate.cfg.xml .
-COPY service.yml .
+COPY hibernate.cfg.xml .    --
+COPY service.yml .          --
 COPY context.xml .
 COPY tomcat-users.xml .
 COPY secrets.run.path /home/fdo/secrets.path

@@ -63,7 +63,7 @@ data:
         password: encrypt_password.txt
     workers:
       - org.fidoalliance.fdo.protocol.StandardLogProvider
-      - org.fidoalliance.fdo.protocol.StandardExceptionConsumer
+      - org.fidoalliance.fdo.protocol.DebugExceptionConsumer
       - org.fidoalliance.fdo.protocol.StandardMessageDispatcher
       - org.fidoalliance.fdo.protocol.StandardCryptoService
       - org.fidoalliance.fdo.protocol.StandardHttpServer
@@ -146,11 +146,11 @@ data:
             <web-resource-name>apis</web-resource-name>
             <url-pattern>/api/v1/*</url-pattern>
         </web-resource-collection>
-        <auth-constraint>
+        <!--<auth-constraint>
             <role-name>api</role-name>
-        </auth-constraint>
+        </auth-constraint>-->
         <user-data-constraint>
-          <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+          <transport-guarantee>NONE</transport-guarantee>
         </user-data-constraint>
       </security-constraint>
       <login-config>

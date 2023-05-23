@@ -3,6 +3,10 @@ kind: Ingress
 metadata:
   name: rv
 spec:
+  tls:
+  - hosts:
+    - rv.fido.gracey.dev
+    secretName: rv-tls
   rules:
   - host: rv.fido.gracey.dev
     http:
@@ -14,3 +18,15 @@ spec:
             name: rv
             port:
               number: 8080
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: rv-tls
+spec:
+  secretName: rv-tls
+  dnsNames:
+    - rv.fido.gracey.dev
+  issuerRef:
+    name: letsencrypt-gracey-dev
+    kind: ClusterIssuer

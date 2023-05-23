@@ -4,6 +4,7 @@
 package org.fidoalliance.fdo.sample;
 
 import java.io.IOException;
+import java.net.URI;
 import java.security.PrivateKey;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
@@ -20,7 +21,7 @@ import org.bouncycastle.pkcs.PKCS10CertificationRequestBuilder;
 import org.bouncycastle.pkcs.jcajce.JcaPKCS10CertificationRequestBuilder;
 import org.fidoalliance.fdo.protocol.Config;
 import org.fidoalliance.fdo.protocol.DispatchMessage;
-import org.fidoalliance.fdo.protocol.HttpClient;
+//import org.fidoalliance.fdo.protocol.HttpClient;
 import org.fidoalliance.fdo.protocol.HttpInstruction;
 import org.fidoalliance.fdo.protocol.HttpUtils;
 import org.fidoalliance.fdo.protocol.InternalServerErrorException;
@@ -66,7 +67,6 @@ public class DeviceApp extends HttpClient {
       new RuntimeException(e);
     }
   }
-
 
   @Override
   public void run() {
@@ -210,7 +210,6 @@ public class DeviceApp extends HttpClient {
     getRequest().setMsgType(MsgType.DI_APP_START);
     getRequest().setMessage(Mapper.INSTANCE.writeValue(appStart));
 
-
   }
 
   private byte[] generateCsr(PublicKeyType keyType, KeySizeType keySize)
@@ -261,4 +260,5 @@ public class DeviceApp extends HttpClient {
     }
     return sigInfo;
   }
+
 }

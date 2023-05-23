@@ -15,15 +15,11 @@ data:
             <property name="current_session_context_class">thread</property>
             <property name="hbm2ddl.auto">update</property>
 
-            <mapping class="org.fidoalliance.fdo.protocol.entity.CertificateValidity"></mapping>
-            <mapping class="org.fidoalliance.fdo.protocol.entity.CertificateData"></mapping>
-            <mapping class="org.fidoalliance.fdo.protocol.entity.OnboardingVoucher"></mapping>
-            <mapping class="org.fidoalliance.fdo.protocol.entity.OnboardingConfig"></mapping>
-            <mapping class="org.fidoalliance.fdo.protocol.entity.OnDieCertificateData"></mapping>
-            <mapping class="org.fidoalliance.fdo.protocol.entity.ProtocolSession"></mapping>
-            <mapping class="org.fidoalliance.fdo.protocol.entity.ConformanceData"></mapping>
-            <mapping class="org.fidoalliance.fdo.protocol.entity.SystemResource"></mapping>
-            <mapping class="org.fidoalliance.fdo.protocol.entity.SystemPackage"></mapping>
+
+        <mapping class="org.fidoalliance.fdo.protocol.entity.AllowDenyList"></mapping>
+        <mapping class="org.fidoalliance.fdo.protocol.entity.CertificateValidity"></mapping>
+        <mapping class="org.fidoalliance.fdo.protocol.entity.CertificateData"></mapping>
+        <mapping class="org.fidoalliance.fdo.protocol.entity.RvRedirect"></mapping>
         </session-factory>
     </hibernate-configuration>
   service.yml: |
@@ -76,7 +72,7 @@ data:
 
     workers:
       - org.fidoalliance.fdo.protocol.StandardLogProvider
-      - org.fidoalliance.fdo.protocol.StandardExceptionConsumer
+      - org.fidoalliance.fdo.protocol.DebugExceptionConsumer
       - org.fidoalliance.fdo.protocol.StandardMessageDispatcher
       - org.fidoalliance.fdo.protocol.StandardCryptoService
       - org.fidoalliance.fdo.protocol.StandardHttpServer
@@ -186,11 +182,11 @@ data:
             <web-resource-name>apis</web-resource-name>
             <url-pattern>/api/v1/*</url-pattern>
          </web-resource-collection>
-         <auth-constraint>
+        <!--<auth-constraint>
             <role-name>api</role-name>
-         </auth-constraint>
+        </auth-constraint>-->
          <user-data-constraint>
-            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+            <!-- <transport-guarantee>CONFIDENTIAL</transport-guarantee> -->
          </user-data-constraint>
       </security-constraint>
 

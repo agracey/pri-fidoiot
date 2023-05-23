@@ -1,8 +1,8 @@
 hibernate-properties:
   hibernate.connection.username: $(db_user)
   hibernate.connection.password: $(db_password)
-  hibernate.connection.url: jdbc:mariadb://host.docker.internal:3306/emdb?useSSL=$(useSSL)
-  hibernate.connection.requireSSL: $(requireSSL)
+  hibernate.connection.url: jdbc:mariadb://localhost:3306/emdb?useSSL=false
+  hibernate.connection.requireSSL: false
   hibernate.connection.autoReconnect: true
   hibernate.dialect: org.hibernate.dialect.MariaDBDialect
 
@@ -13,12 +13,12 @@ system-properties:
   server.api.user: $(api_user)
   server.api.password: "null"
   service.name: "All-in-one demo"
-  javax.net.ssl.keyStorePassword: default
-  javax.net.ssl.trustStorePassword: default
-  javax.net.ssl.keyStore: $(secrets.path)/api-user.pem
-  javax.net.ssl.trustStore: $(secrets.path)/ca-cert.pem
-  javax.net.ssl.keyStoreType: PEM
-  javax.net.ssl.trustStoreType: PEM
+  # javax.net.ssl.keyStorePassword: default
+  # javax.net.ssl.trustStorePassword: default
+  # javax.net.ssl.keyStore: $(secrets.path)/api-user.pem
+  # javax.net.ssl.trustStore: $(secrets.path)/ca-cert.pem
+  # javax.net.ssl.keyStoreType: PEM
+  # javax.net.ssl.trustStoreType: PEM
   #javax.net.debug: ssl:handshake
   #log4j.logger.org.apache.http.impl.conn: DEBUG
   #log4j.logger.org.apache.http.impl.client: DEBUG
@@ -31,24 +31,19 @@ system-properties:
   #http.nonProxyHosts:
 
 
-secrets:
-  - db_password
-
 http-server:
   base_path: .
-  http_port: 8080
-  https_port: 8443
+  http_port: 8081
   http_schemes:
   - http
-  - https
   http_timeout: 20000
-  server_cert: $(secrets.path)/server-cert.pem
-  server_key: $(secrets.path)/server-key.pem
-  truststore_file: $(secrets.path)/ca-cert.pem
-  truststore_type: PEM
-  certificate_verification: want
-  protocols: TLSv1.3
-  certificate_verification_depth: 2
+  # server_cert: $(secrets.path)/server-cert.pem
+  # server_key: $(secrets.path)/server-key.pem
+  # truststore_file: $(secrets.path)/ca-cert.pem
+  # truststore_type: PEM
+  # certificate_verification: want
+  # protocols: TLSv1.3
+  # certificate_verification_depth: 2
 
 manufacturer:
    keystore: 
@@ -56,11 +51,11 @@ manufacturer:
      store-type: PKCS12
      password: $(encrypt_password)
    rv-instruction:
-     dns: host.docker.internal
-     ip: 172.17.0.1
+     dns: $(hostname)
+     ip: $(ip)
      protocol: 1
-     ownerport: 8443
-     devport: 8080
+     ownerport: 8081
+     devport: 8081
 
 owner:
    keystore: 
@@ -93,24 +88,6 @@ cwt:
      path: ctw.p12
      store-type: PKCS12
      password: $(encrypt_password)
-
-#  *********************** NOTE **********************************************
-#
-# Out of the box, FDO services are configured to use trusted certificates.
-# In test environments, the user can enable the trust for self-signed certificates
-# by updating the worker list in `service.yml` file of respective component.
-#
-# Enable the following workers
-#
-#  - org.fidoalliance.fdo.protocol.SelfSignedHttpClientSupplier
-#  - org.fidoalliance.fdo.protocol.db.BasicServiceInfoClientSupplier
-#
-# and Disable
-#
-#  - org.fidoalliance.fdo.protocol.StandardHttpClientSupplier
-#  - org.fidoalliance.fdo.protocol.db.StandardServiceInfoClientSupplier
-#
-# *****************************************************************************
 
 workers:
   - org.fidoalliance.fdo.protocol.StandardLogProvider

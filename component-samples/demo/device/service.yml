@@ -3,8 +3,8 @@
 
 device:
 
-  di-url: http://host.docker.internal:8080
-
+  #di-url: http://192.168.1.25:8081
+  di-url: https://manufacturer.fido.gracey.dev
   credential-file: ./app-data/credentials.bin
  
   keystore: 
@@ -83,8 +83,8 @@ device:
 # The worker items the device will use when handling requests
 workers:
   - org.fidoalliance.fdo.protocol.StandardLogProvider
-  #- org.fidoalliance.fdo.protocol.DebugExceptionConsumer
-  - org.fidoalliance.fdo.protocol.StandardExceptionConsumer
+  - org.fidoalliance.fdo.protocol.DebugExceptionConsumer
+  #- org.fidoalliance.fdo.protocol.StandardExceptionConsumer
   - org.fidoalliance.fdo.protocol.StandardMessageDispatcher
   - org.fidoalliance.fdo.protocol.StandardCryptoService
   - org.fidoalliance.fdo.protocol.SelfSignedHttpClientSupplier

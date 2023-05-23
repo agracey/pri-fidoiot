@@ -152,178 +152,13 @@ keys_gen.sh can be used to generate random passwords for each service.env.
 
     **NOTE**: Docker secrets are only available to swarm services, not to standalone containers. To use this feature, consider adapting your container to run as a service. Stateful containers can typically run with a scale of 1 without changing the container code.
 
-### Specifying Subject alternate names for the Web/HTTPS self-signed certificate.
-
-When the http server starts for the first time it will generate a self-signed certificate for https protocol.
-
-The   subject name of the self-signed certificate is defined in the  `web-server.conf` and `client.conf`.
-
-Uncomment `subjectAltName` and allowed list of IP and DNS in `[alt_names]` section. Example:
-
-```
-#[ req_ext ]
-  subjectAltName = @alt_names
-
-[ alt_names ]
-  #Replace or add new DNS and IP entries with the ones required by the HTTPs/Web Service.
-  DNS.1 = www.example.com
-  DNS.2 = test.example.com
-  DNS.3 = mail.example.com
-  DNS.4 = www.example.net
-  IP.1 = 127.0.0.1
-  IP.2 = 200.200.200.200
-  IP.3 = 2001:DB8::1
-```
-
-**NOTE**: Self-signed certificates created using the script is not recommended for use in production environments.
-
-### Starting Standalone Database for PRI servers
-
-1. Copy generated `secrets/` folder to `<fdo-pri-src>/component-sample/demo/db` folder. [Generate secrets](#Generating-random-passwords-using-keys_gen.sh)
-
-2. Start the Database service
-```shell
-cd <fdo-pri-src>/component-samples/demo/db
-docker-compose up --build -d/ podman-compose up --build -d
-```
-
-**NOTE**: By default, Database uses mTLS connection for jdbc. MariaDB* is used as the default database. For non-mTLS jdbc connection, set `use_ssl` and `require_ssl` property to `false` in `service.yml` of individual services.
-
-**NOTE**: Follow the steps to [Enable embedded H2 database](./component-samples/demo/README.MD#enable-embedded-h2-database-server)
-
 ### Starting FDO PRI HTTP Servers
-
-
-#### Starting the FDO PRI All-In-One (AIO) HTTP Server
-
-To start the server as a docker/podman container.
-
-```
-$ cd <fdo-pri-src>/component-samples/demo/aio
-$ docker-compose up --build  -d / podman-compose up --build -d
-```
-
-To start the server as a standalone java application.
-
-  ```
-  $ cd <fdo-pri-src>/component-samples/demo/aio
-  $ java -jar aio.jar
-  ```
-
-  The server will listen for FDO PRI http & https messages on ports 8080 and 8443 respectively.
-
-  The all-in-one demo supports all FDO protocols in a single service by default.
-
-
-#### Starting the FDO PRI Rendezvous (RV) HTTP Server
-
-To start the server as a docker/podman container.
-
-```
-$ cd <fdo-pri-src>/component-samples/demo/rv
-$ docker-compose up --build -d/ podman-compose up --build -d
-```
-
-To start the server as a standalone java application.
-
-```
-$ cd <fdo-pri-src>/component-samples/demo/rv
-$ java -jar aio.jar
-```
-
-The server will listen for FDO PRI HTTP & HTTPS  messages on port 8040 and 8041 respectively.
-
-#### Starting the FDO PRI Owner HTTP Server
-
-```
-$ cd <fdo-pri-src>/component-samples/demo/owner
-$ docker-compose up --build -d/ podman-compose up --build -d
-```
-
-To start the server as a standalone java application.
-
-```
-$ cd <fdo-pri-src>/component-samples/demo/owner
-$ java -jar aio.jar
-```
-
-The server will listen for FDO PRI HTTP & HTTPS messages on port 8042 and 8043 respectively.
-
-#### Starting the FDO PRI Manufacturer Server
-
-```
-$ cd <fdo-pri-src>/component-samples/demo/manufacturer
-$ docker-compose up --build -d/ podman-compose up --build -d
-```
-
-To start the server as a standalone java application.
-
-```
-$ cd <fdo-pri-src>/component-samples/demo/manufacturer
-$ java -jar aio.jar
-```
-
-The server will listen for FDO PRI HTTP & HTTPS  messages on port 8039 and 8038 respectively.
-
-### Running the FDO PRI HTTP Device
-
-#### Staring the FDO PRI HTTP Device
-
-***NOTE***: By default the device is configured to run with the All-In-One (AIO) ports.  You must edit the service.yml in the demo device directory to run with the  manufacturer demo.
-
-```shell
-$ cd <fdo-pri-src>/component-samples/demo/device
-$ docker-compose up --build -d
-```
-
-To start the Client as a standalone java application.
-
-```
-$ cd <fdo-pri-src>/component-samples/demo/device
-$ java -jar device.jar
-```
-Running the device for the first time will result in device keys being generated and the device keys are stored in the `app-data` directory.
-Once device keys are generated the device will run the DI protocol and store the DI credentials in a file called `credentials.bin`.
-
-Running device for a second time will result in the device performing TO1/TO2 protocols.
-
-Deleting the `credentials.bin` file will force the device to re-run DI protocol.
 
 
 #### Configuring FDO PRI HTTP Device
 
 `<fdo-pri-src>/component-samples/demo/device/service.yml` contains the configuration of the device.
 
-
-#### Creating Ownership Vouchers using All-In-One (AIO) demo
-
-Before running the device for the first time start the demo aio server.
-
-Run the demo device
-
-As auto injection of ownership voucher is enabled in AIO by default; the ownership voucher is extended and stored in `ONBOARDING_CONFIG` table and the device is ready for TO1/2.
-
-#### Switching between mTLS and Digest Authentication for REST endpoints
-
-1. Update `WEB-INF/web.xml` to support Digest authentication
-    ```
-    <security-constraint>
-        <web-resource-collection>
-            <web-resource-name>apis</web-resource-name>
-            <url-pattern>/api/v1/*</url-pattern>
-        </web-resource-collection>
-        <auth-constraint>
-            <role-name>api</role-name>
-        </auth-constraint>
-        <user-data-constraint>
-          <transport-guarantee>NONE</transport-guarantee>
-        </user-data-constraint>
-      </security-constraint>
-
-      <login-config>
-          <auth-method>DIGEST</auth-method>
-      </login-config>
-    ```
 
 2. Update `{server.api.user}` and `{server.api.password}` in `demo/<component>/tomcat-users.xml` file.
 
@@ -333,17 +168,15 @@ Before running the device for the first time start the demo manufacturer.
 
 Use the following REST api to specify the rendezvous instructions for demo rv server.
 
-POST https://host.docker.internal:8038/api/v1/rvinfo (or http://host.docker.internal:8039/api/v1/rvinfo)
+POST https://manufacturer.fido.gracey.dev/api/v1/rvinfo
 The post body content-type header `text/plain`
 
-For authorization, users can use DIGEST AUTH with "apiUser" and api_password as defined in the manufacturer's service.env or can use CLIENT-CERT AUTH (mTLS).
-
-POST content
 ```
-[[[5,"host.docker.internal"],[3,8041],[12,2],[2,"127.0.0.1"],[4,8041]]]
+[[[5,"host.docker.internal"],[3,8041],[12,2],[2,"127.0.0.1"],     [4,8041]]]
+[[[5,"rv.fido.gracey.dev"],  [3, 443],[12,2],[2, "192.168.1.25"], [4, 443],[0, 1]]]
 ```
 
-Change the `di-url: http://host.docker.internal:8080` in the demo device service.yml to `di-url: http://host.docker.internal:8039`
+Change the `di-url: http://host.docker.internal:8080` in the demo device service.yml to `di-url: https://manufacturer.fido.gracey.dev`
 
 After Running the device the successful output would be as follows:
 
@@ -358,12 +191,10 @@ $ java -jar device.jar
 
 Next get the owners public key by starting the demo owner service and use the following REST API.
 
-GET https://host.docker.internal:8043/api/v1/certificate?alias=SECP256R1 (or http://host.docker.internal:8042/api/v1/certificate?alias=SECP256R1)
+GET https://owner.fido.gracey.dev/api/v1/certificate?alias=SECP256R1 
 
-For authorization, users can use DIGEST AUTH with "apiUser" and api_password as defined in the owner's service.env or can use CLIENT-CERT AUTH (mTLS).
 
 Response body will be the Owner's certificate in PEM format
-
 
 ```
 -----BEGIN CERTIFICATE-----
@@ -374,19 +205,14 @@ Response body will be the Owner's certificate in PEM format
 
 For EC384 based vouchers use the following API:
 
-GET https://host.docker.internal:8043/api/v1/certificate?alias=SECP384R1 (or http://host.docker.internal:8042/api/v1/certificate?alias=SECP384R1)
+GET https://owner.fido.gracey.dev/api/v1/certificate?alias=SECP384R1
 
-For authorization, users can use DIGEST AUTH with "apiUser" and api_password as defined in the owner's service.env or can use CLIENT-CERT AUTH (mTLS).
-
-Result body will be the owners certificate in PEM format
 
 [REFER](https://github.com/secure-device-onboard/pri-fidoiot/tree/master/component-samples/demo/aio#list-of-key-store-alias-values) for the other supported attestation type.
 
 Next, collect the serial number of the last manufactured voucher
 
-GET https://host.docker.internal:8038/api/v1/deviceinfo/{seconds} (or http://host.docker.internal:8039/api/v1/deviceinfo/100000)
-
-For authorization, users can use DIGEST AUTH with "apiUser" and api_password as defined in the manufacturer's service.env or can use CLIENT-CERT AUTH (mTLS).
+GET https://manufacturer.fido.gracey.dev/api/v1/deviceinfo/10000
 
 Result will contain the device info
 ```
@@ -394,11 +220,10 @@ Result will contain the device info
 ```
 
 Post the PEM Certificate obtained form the owner to the manufacturer to get the ownership voucher transferred to the owner.
-POST https://host.docker.internal:8038/api/v1/mfg/vouchers/43FF320A(or http://host.docker.internal:8039api/v1/mfg/vouchers/43FF320A)
+POST https://manufacturer.fido.gracey.dev/api/v1/mfg/vouchers/14F65A8A
 
-For authorization, users can use DIGEST AUTH with "apiUser" and api_password as defined in the manufacturer's service.env or can use CLIENT-CERT AUTH (mTLS).
 
-POST content-type `text\plain` 
+POST Content-Type `text\plain` 
 
 In the request body add owner's certificate.
 
@@ -407,16 +232,17 @@ In the request body add owner's certificate.
 ...
 -----END CERTIFICATE-----
 ```
+
 Response will contain the ownership voucher
 ```
 -----BEGIN OWNERSHIP VOUCHER-----
 -----END OWNERSHIP VOUCHER-----
 ```
 
-Post the extended ownership found obtained from the manufacturer to the owner
-POST https://host.docker.internal:8043/api/v1/owner/vouchers (or http://host.docker.internal:8042/api/v1/owner/vouchers)
 
-For authorization, users can use DIGEST AUTH with "apiUser" and api_password as defined in the owner's service.env or can use CLIENT-CERT AUTH (mTLS).
+
+Post the extended ownership found obtained from the manufacturer to the owner
+POST https://owner.fido.gracey.dev/api/v1/owner/vouchers/
 
 POST content-type `text\plain`
 
@@ -425,14 +251,16 @@ In the request body add extended ownership voucher
 -----BEGIN OWNERSHIP VOUCHER-----
 -----END OWNERSHIP VOUCHER-----
 ```
+
 Response body be the uuid of the voucher
-Eg: 24275cd7-f9f5-4d34-a2a5-e233ac38db6c
+```
+24275cd7-f9f5-4d34-a2a5-e233ac38db6c
+```
+
 
 Configure the Owners TO2 address using the following API:
 
-POST https://host.docker.internal:8043/api/v1/owner/redirect (or http://host.docker.internal:8042/api/v1/owner/redirect)
-
-For authorization, users can use DIGEST AUTH with "apiUser" and api_password as defined in the owner's service.env or can use CLIENT-CERT AUTH (mTLS).
+POST https://owner.fido.gracey.dev/api/v1/owner/redirect
 
 POST content-type `text\plain`
 
@@ -442,11 +270,10 @@ In the request body add Owner T02RedirectAddress.
 ```
 Response `200 OK`
 
+
 Trigger owner to perform To0 with the voucher and post the extended ownership found obtained from the manufacturer to the owner
 
-GET https://host.docker.internal:8043/api/v1/to0/24275cd7-f9f5-4d34-a2a5-e233ac38db6c (or http://host.docker.internal:8042/api/v1/to0/24275cd7-f9f5-4d34-a2a5-e233ac38db6c)
-
-For authorization, users can use DIGEST AUTH with "apiUser" and api_password as defined in the owner's service.env or can use CLIENT-CERT AUTH (mTLS).
+GET https://owner.fido.gracey.dev/api/v1/to0/e748cfa9-b574-442d-a0dc-79d423737a9e
 
 Response `200 OK`
 
@@ -455,15 +282,13 @@ Response `200 OK`
 #### Configure the owner service info package
 
 Use the following API to configure a service info package.
-POST https://host.docker.internal:8043/api/v1/owner/svi (or http://host.docker.internal:8042/api/v1/owner/svi)
-
-For authorization, users can use DIGEST AUTH with "apiUser" and api_password as defined in the owner's service.env or can use CLIENT-CERT AUTH (mTLS).
+POST https://owner.fido.gracey.dev/api/v1/owner/svi
 
 POST content
 ```
 [ 
-  {"filedesc" : "setup.sh", "resource" : "https://google.com"}, 
-  {"exec" : ["sh","setup.sh"] }
+  {"filedesc" : "test", "resource" : "https://google.com"},
+  {"filedesc" : "/tmp/test", "resource" : "https://google.com"}
 ]
 ```
 Response `200 OK`

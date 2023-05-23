@@ -2,7 +2,7 @@ hibernate-properties:
   hibernate.connection.username: $(db_user)
   hibernate.connection.password: $(db_password)
   hibernate.connection.url: jdbc:mariadb://host.docker.internal:3306/emdb?useSSL=$(useSSL)
-  hibernate.connection.requireSSL: $(requireSSL)
+  hibernate.connection.requireSSL: false
   hibernate.connection.autoReconnect: true
   hibernate.dialect: org.hibernate.dialect.MariaDBDialect
 
@@ -13,22 +13,6 @@ system-properties:
   service.name: "Rendezvous"
   server.api.user: $(api_user)
   server.api.password: "null"
-  javax.net.ssl.keyStorePassword: default
-  javax.net.ssl.trustStorePassword: default
-  javax.net.ssl.keyStore: $(secrets.path)/api-user.pem
-  javax.net.ssl.trustStore: $(secrets.path)/ca-cert.pem
-  javax.net.ssl.keyStoreType: PEM
-  javax.net.ssl.trustStoreType: PEM
-  #javax.net.debug: ssl:handshake
-  #log4j.logger.org.apache.http.impl.conn: DEBUG
-  #log4j.logger.org.apache.http.impl.client: DEBUG
-  #log4j.logger.org.apache.http.client: DEBUG
-  # set system proxy information
-  #http.proxyHost:
-  #http.proxyPort:
-  #https.proxyHost:
-  #https.proxyPort:
-  #http.nonProxyHosts:
 
 
 secrets:

@@ -41,15 +41,19 @@ public class To0Starter extends RestApi {
           To0d to0d = new To0d();
           to0d.setVoucher(voucher);
           to0d.setWaitSeconds(Duration.ofDays(1).toSeconds());
+          logger.info("TO0 Progress 1 for GUID: " + guid);
 
           OnboardingConfig onboardConfig = new OnboardConfigSupplier().get();
+          logger.info("TO0 Progress 2 for GUID: " + guid);
 
           To2AddressEntries addressEntries = new To2BlobSupplier().get();
+          logger.info("TO0 Progress 3 for GUID: " + guid);
 
           to0Client.setAddressEntries(addressEntries);
 
           to0d.setWaitSeconds(onboardConfig.getWaitSeconds());
           to0Client.setTo0d(to0d);
+          logger.info("TO0 Progress 4 for GUID: " + guid);
           to0Client.run();
         } catch (IOException e) {
           logger.error("TO0 failed for GUID: " + guid);
